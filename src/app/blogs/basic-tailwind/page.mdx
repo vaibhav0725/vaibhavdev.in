@@ -1,0 +1,71 @@
+# Basic Usage of Tailwind CSS
+
+Tailwind CSS is a utility-first CSS framework for rapidly building custom user interfaces. Here's a quick guide to get started with Tailwind in your project.
+
+## 1. Installation
+
+You can install Tailwind CSS via npm:
+
+```bash
+npm install -D tailwindcss
+npx tailwindcss init
+```
+
+This will create a `tailwind.config.js` file in your project.
+
+## 2. Configure Your Template Paths
+
+In your `tailwind.config.js`, specify the paths to all of your template files:
+
+```js
+module.exports = {
+  content: [
+    "./src/**/*.{html,js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+## 3. Add Tailwind to Your CSS
+
+Create a CSS file (e.g., `src/index.css`) and add the following lines:
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+## 4. Build Your CSS
+
+Add the following script to your `package.json` to build your CSS:
+
+```json
+"scripts": {
+  "build:css": "tailwindcss -i ./src/index.css -o ./dist/output.css --watch"
+}
+```
+
+Then run:
+
+```bash
+npm run build:css
+```
+
+## 5. Use Tailwind in Your HTML
+
+Now you can use Tailwind's utility classes in your HTML:
+
+```html
+<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+  Button
+</button>
+```
+
+## 6. Resources
+
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs/installation)
+- [Play with Tailwind CSS Online](https://play.tailwindcss.com/)
