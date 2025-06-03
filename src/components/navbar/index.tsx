@@ -24,13 +24,17 @@ export const Navbar = () => {
     return (
         <Container>
             <motion.nav 
+                transition={{
+                    ease:"linear",
+                    duration:"0.3"
+                }}
                 animate={{
                     boxShadow: scrolled ? "var(--shadow-aceternity)" : "none",
                     width: scrolled ? "50%" : "80%",
                     borderRadius: scrolled ? "100px" : "0",
                     y: scrolled ? "10px" : "0",
                 }}
-                className="fixed top-0 inset-x-0 max-w-4xl mx-auto flex items-center justify-between px-4 py-3 backdrop-blur-sm">
+                className="z-10 fixed top-0 inset-x-0 max-w-4xl mx-auto flex items-center justify-between px-4 py-3 backdrop-blur-sm">
                 <h1 className="text-primary font-bold text-2xl tracking-tighter">Vaibhav Malik</h1>
                 <div className="">
                     {
@@ -47,7 +51,7 @@ export const Navbar = () => {
                                         layoutId="hovered-span"
                                         className="inset-0 w-full h-full rounded-md bg-neutral-100 dark:bg-neutral-800 absolute"/>
                                 }
-                                <span className="relative z-10">{item.label}</span>
+                                <span className="relative z-10 text-secondary">{item.label}</span>
                             </Link>
                         ))
                     }
