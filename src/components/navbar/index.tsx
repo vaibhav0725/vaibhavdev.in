@@ -1,14 +1,15 @@
 "use client";
 import { Container } from "../container"
 import {motion, useMotionValueEvent, useScroll, useTransform} from "motion/react"
-import Link from "next/link"
+import { Link } from "next-view-transitions"
 import { useState } from "react"
 
 const navItems = [
-    { label: "About", href: "/about" },
+    { label: "Snippets", href: "/snippets" },
     { label: "Projects", href: "/projects" },
     { label: "Contact", href: "/contact" },
     { label: "Blogs", href: "/blogs" },
+    { label: "About", href: "/about" }
 ]
 export const Navbar = () => {
     const [hovered,setHovered] = useState<null | number>(null);
@@ -17,7 +18,7 @@ export const Navbar = () => {
     const [scrolled,setScrolled] = useState<boolean>(false);
 
     const y = useTransform(scrollY,[0,50,100],[0,5,10]);
-    const width = useTransform(scrollY,[0,50,100],["65%","55%","50%"]);
+    const width = useTransform(scrollY,[0,50,100],["65%","60%","55%"]);
     const borderRadius = useTransform(scrollY,[0,50,100],["0","30px","100px"])
 
     useMotionValueEvent(scrollY,"change",(current)=>{

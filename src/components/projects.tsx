@@ -51,9 +51,9 @@ export const Projects = () => {
                                 delay: idx * 0.1
                             }}
                             key={idx}
-                            className="group relative mb-4"
+                            className="group relative mb-4 mx-auto"
                             >
-                            <Image src={prj.src} width={500} height={500} alt="hello" 
+                            <Image src={prj.src} width={400} height={400} alt="hello" 
                             className="object-cover rounded-3xl aspect-square transistion duration-200 group-hover:scale-[1.02]"/>
                             <h1 className="text-neutral-500 text-xl mt-2 font-medium tracking-tight">{prj.title}</h1>
                             <p className="max-w-xs text-neutral-500 text-sm ">{prj.description}</p>
