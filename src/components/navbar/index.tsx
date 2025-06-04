@@ -1,6 +1,6 @@
 "use client";
 import { Container } from "../container"
-import {motion, useMotionValueEvent, useScroll} from "motion/react"
+import {motion, useMotionValueEvent, useScroll, useTransform} from "motion/react"
 import Link from "next/link"
 import { useState } from "react"
 
@@ -16,6 +16,10 @@ export const Navbar = () => {
 
     const [scrolled,setScrolled] = useState<boolean>(false);
 
+    const y = useTransform(scrollY,[0,50,100],[0,5,10]);
+    const width = useTransform(scrollY,[0,50,100],["65%","55%","50%"]);
+    const borderRadius = useTransform(scrollY,[0,50,100],["0","30px","100px"])
+
     useMotionValueEvent(scrollY,"change",(current)=>{
         if(current>20) setScrolled(true);
         else setScrolled(false);
@@ -28,11 +32,11 @@ export const Navbar = () => {
                     ease:"linear",
                     duration:"0.3"
                 }}
-                animate={{
+                style={{
                     boxShadow: scrolled ? "var(--shadow-aceternity)" : "none",
-                    width: scrolled ? "50%" : "80%",
-                    borderRadius: scrolled ? "100px" : "0",
-                    y: scrolled ? "10px" : "0",
+                    width:width,
+                    borderRadius: borderRadius,
+                    y:y
                 }}
                 className="z-10 fixed top-0 bg-white/50 dark:bg-neutral-900/50 inset-x-0 max-w-4xl mx-auto flex items-center justify-between px-4 py-3 backdrop-blur-sm">
                 <Link href="/" className="text-primary font-bold text-2xl tracking-tighter">Vaibhav Malik</Link>
