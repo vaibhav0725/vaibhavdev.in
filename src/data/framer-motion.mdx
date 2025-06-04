@@ -1,0 +1,135 @@
+---
+title: Getting Started with Framer Motion
+slug: framer-motion
+date: 2024-06-09
+description: Master the art of creating fluid animations and interactions with Framer Motion, a powerful animation library for React. This comprehensive guide takes you through the fundamentals of motion design, from basic animations to complex interactions. Learn how to implement smooth transitions, gesture-based animations, and responsive motion effects that enhance user experience. Whether you're a React developer looking to add polish to your applications or a designer seeking to bring your creative visions to life, this tutorial provides everything you need to create engaging and performant animations with Framer Motion.
+src: /images/framer-motion-cover.png
+---
+
+# Getting Started with Framer Motion
+
+Framer Motion is a powerful animation library for React that makes it easy to create fluid, interactive animations. This guide will help you get started with Framer Motion and show you how to create beautiful animations in your React applications.
+
+## Installation
+
+First, install Framer Motion in your project:
+
+```bash
+npm install framer-motion
+# or
+yarn add framer-motion
+```
+
+## Basic Usage
+
+Here's a simple example of how to use Framer Motion:
+
+```jsx
+import { motion } from "framer-motion"
+
+function MyComponent() {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      Hello World!
+    </motion.div>
+  )
+}
+```
+
+## Key Concepts
+
+### 1. Motion Components
+
+Framer Motion provides motion components for every HTML and SVG element:
+
+```jsx
+<motion.div />
+<motion.span />
+<motion.h1 />
+<motion.svg />
+```
+
+### 2. Animation Properties
+
+Common animation properties include:
+
+- `initial`: Starting state
+- `animate`: End state
+- `exit`: State when component is removed
+- `transition`: Animation timing and easing
+
+### 3. Gestures
+
+Framer Motion makes it easy to add gesture-based animations:
+
+```jsx
+<motion.div
+  whileHover={{ scale: 1.1 }}
+  whileTap={{ scale: 0.9 }}
+>
+  Interactive Element
+</motion.div>
+```
+
+## Advanced Features
+
+### 1. Variants
+
+Variants help you orchestrate animations across components:
+
+```jsx
+const variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+}
+
+<motion.div
+  variants={variants}
+  initial="hidden"
+  animate="visible"
+>
+  Animated Content
+</motion.div>
+```
+
+### 2. Layout Animations
+
+Automatically animate layout changes:
+
+```jsx
+<motion.div layout>
+  Content that changes size
+</motion.div>
+```
+
+### 3. Drag Gestures
+
+Add drag functionality to elements:
+
+```jsx
+<motion.div
+  drag
+  dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+>
+  Draggable Element
+</motion.div>
+```
+
+## Best Practices
+
+1. Use `AnimatePresence` for exit animations
+2. Keep animations subtle and purposeful
+3. Consider performance implications
+4. Test on different devices and browsers
+
+## Resources
+
+- [Framer Motion Documentation](https://www.framer.com/motion/)
+- [Framer Motion Examples](https://www.framer.com/motion/examples/)
+- [Framer Motion GitHub](https://github.com/framer/motion)
+
+Happy animating!

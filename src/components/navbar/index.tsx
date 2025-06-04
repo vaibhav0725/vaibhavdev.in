@@ -34,8 +34,8 @@ export const Navbar = () => {
                     borderRadius: scrolled ? "100px" : "0",
                     y: scrolled ? "10px" : "0",
                 }}
-                className="z-10 fixed top-0 inset-x-0 max-w-4xl mx-auto flex items-center justify-between px-4 py-3 backdrop-blur-sm">
-                <h1 className="text-primary font-bold text-2xl tracking-tighter">Vaibhav Malik</h1>
+                className="z-10 fixed top-0 bg-white/50 dark:bg-neutral-900/50 inset-x-0 max-w-4xl mx-auto flex items-center justify-between px-4 py-3 backdrop-blur-sm">
+                <Link href="/" className="text-primary font-bold text-2xl tracking-tighter">Vaibhav Malik</Link>
                 <div className="">
                     {
                         navItems.map((item,idx)=>(
@@ -51,7 +51,7 @@ export const Navbar = () => {
                                         layoutId="hovered-span"
                                         className="inset-0 w-full h-full rounded-md bg-neutral-100 dark:bg-neutral-800 absolute"/>
                                 }
-                                <span className="relative z-10 text-secondary">{item.label}</span>
+                                <span className="relative z-10 text-primary">{item.label}</span>
                             </Link>
                         ))
                     }
