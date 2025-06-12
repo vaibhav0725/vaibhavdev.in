@@ -17,7 +17,7 @@ export default async function BlogPage() {
   const blogs = await getAllBlogFrontmatters();
   return (
     <div className="min-h-screen flex items-start justify-start">
-      <Container className="min-h-[200vh] p-4 md:pt-20 md:pb-10">
+      <Container className="min-h-screen p-4 md:pt-20 md:pb-10">
         <Heading>All Blogs</Heading>
         <Subheading>I am a software engineer, I love to code and build things.</Subheading>
         <div className="flex flex-col gap-4 py-10">

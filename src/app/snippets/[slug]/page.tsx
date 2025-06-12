@@ -1,6 +1,8 @@
 "use client";
-import { CodeBlock } from "@/components/codeblock"
 import { Container } from "@/components/container"
+import { Heading } from "@/components/heading";
+import { Subheading } from "@/components/subheading";
+
 export default function SingleSnippet() {
     const code = `// Define an interface for a User
 interface User {
@@ -56,10 +58,9 @@ async function main() {
 main().catch(console.error);`;
     return (
         <div className="min-h-screen flex items-start justify-start">
-            <Container className="min-h-[200vh] p-4 md:pt-20 md:pb-10">
-                <h1 className="text-primary text-2xl md:text-4xl tracking-tight font-bold">Snippet</h1>
-                <p className="text-secondary text-sm md:text-base pt-3">I am a software engineer, I love to code and build things.</p>
-                <CodeBlock language="typescript" code={code}/>
+            <Container className="min-h-screen p-4 md:pt-20 md:pb-10">
+                <Heading>Snippet</Heading>
+                <Subheading>I am a software engineer, I love to code and build things.</Subheading>
             </Container>
         </div>
     )

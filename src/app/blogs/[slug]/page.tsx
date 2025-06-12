@@ -15,19 +15,19 @@ export default async function SingleBlogPage({ params }: { params: { slug: strin
   const { content, data } = matter(blogfile!);
 
   // Ensure date is a string for rendering
-  let dateString = '';
-  if (data.date) {
-    if (typeof data.date === 'string') {
-      dateString = data.date;
-    } else if (data.date instanceof Date) {
-      dateString = data.date.toISOString();
-    } else {
-      dateString = String(data.date);
-    }
-  }
+  // let dateString = '';
+  // if (data.date) {
+  //   if (typeof data.date === 'string') {
+  //     dateString = data.date;
+  //   } else if (data.date instanceof Date) {
+  //     dateString = data.date.toISOString();
+  //   } else {
+  //     dateString = String(data.date);
+  //   }
+  // }
 
   return (
-    <Container className="min-h-[200vh] p-4 md:pt-20 md:pb-10">
+    <Container className="min-h-screen p-4 md:pt-20 md:pb-10">
       <div className="prose max-w-none mt-8">
         <MDXRemote source={content} />
       </div>
