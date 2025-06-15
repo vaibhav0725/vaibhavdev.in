@@ -8,7 +8,8 @@ import { redirect } from "next/navigation";
 export const metadata: Metadata = {};
 
 export default async function SingleBlogPage({ params }: { params: { slug: string } }) {
-  const blogfile = await getMdxFile(params.slug);
+  const {slug} = await params;
+  const blogfile = await getMdxFile(slug);
   if (!blogfile) {
     redirect('/blogs');
   }

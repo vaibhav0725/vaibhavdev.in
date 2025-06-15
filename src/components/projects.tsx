@@ -36,6 +36,7 @@ export const Projects = () => {
                 {
                     projects.map((prj,idx)=>(
                         <motion.div 
+                            key={idx}
                             initial={{
                                 opacity:0,
                                 filter:"blur(10px)",
@@ -50,7 +51,6 @@ export const Projects = () => {
                                 duration:"0.3",
                                 delay: idx * 0.1
                             }}
-                            key={idx}
                             className="group relative mb-4 mx-auto"
                             >
                             <Image src={prj.src} width={400} height={400} alt="hello" 
