@@ -1,0 +1,394 @@
+---
+title: "Mastering TypeScript: Advanced Patterns and Best Practices"
+description: "Dive deep into TypeScript's advanced features, design patterns, and real-world applications for building robust applications"
+date: "2024-01-20"
+tags: ["TypeScript", "JavaScript", "Programming", "Advanced"]
+author: "Vaibhav Malik"
+slug: "mastering-typescript"
+---
+
+# Mastering TypeScript: Advanced Patterns and Best Practices
+
+TypeScript has evolved from a simple type checker to a powerful language that enables developers to write more maintainable and scalable code. Let's explore advanced patterns and best practices that will take your TypeScript skills to the next level.
+
+## Advanced Type System Features
+
+### Conditional Types
+Conditional types allow you to create types that depend on other types:
+
+```typescript
+type NonNullable<T> = T extends null | undefined ? never : T;
+
+type Result = NonNullable<string | null | undefined>; // string
+
+// Advanced conditional type
+type ArrayElement<T> = T extends Array<infer U> ? U : never;
+type StringArray = string[];
+type Element = ArrayElement<StringArray>; // string
+```
+
+### Mapped Types
+Transform existing types into new ones:
+
+```typescript
+type Readonly<T> = {
+  readonly [P in keyof T]: T[P];
+};
+
+type User = {
+  id: number;
+  name: string;
+  email: string;
+};
+
+type ReadonlyUser = Readonly<User>;
+// {
+//   readonly id: number;
+//   readonly name: string;
+//   readonly email: string;
+// }
+```
+
+### Template Literal Types
+Create string literal types with dynamic parts:
+
+```typescript
+type EventName<T extends string> = `${T}Changed`;
+type UserEvents = EventName<'user'>; // "userChanged"
+
+type ApiEndpoint<T extends string> = `/api/${T}`;
+type UserEndpoint = ApiEndpoint<'users'>; // "/api/users"
+```
+
+## Design Patterns in TypeScript
+
+### Factory Pattern
+Create objects without specifying their exact class:
+
+```typescript
+interface Animal {
+  makeSound(): void;
+}
+
+class Dog implements Animal {
+  makeSound() {
+    console.log('Woof!');
+  }
+}
+
+class Cat implements Animal {
+  makeSound() {
+    console.log('Meow!');
+  }
+}
+
+class AnimalFactory {
+  static createAnimal(type: 'dog' | 'cat'): Animal {
+    switch (type) {
+      case 'dog':
+        return new Dog();
+      case 'cat':
+        return new Cat();
+      default:
+        throw new Error('Unknown animal type');
+    }
+  }
+}
+
+const dog = AnimalFactory.createAnimal('dog');
+dog.makeSound(); // "Woof!"
+```
+
+### Singleton Pattern
+Ensure a class has only one instance:
+
+```typescript
+class Database {
+  private static instance: Database;
+  private constructor() {}
+
+  static getInstance(): Database {
+    if (!Database.instance) {
+      Database.instance = new Database();
+    }
+    return Database.instance;
+  }
+
+  query(sql: string): any {
+    console.log(`Executing: ${sql}`);
+  }
+}
+
+const db1 = Database.getInstance();
+const db2 = Database.getInstance();
+console.log(db1 === db2); // true
+```
+
+### Observer Pattern
+Implement event-driven architecture:
+
+```typescript
+interface Observer {
+  update(data: any): void;
+}
+
+class Subject {
+  private observers: Observer[] = [];
+
+  attach(observer: Observer): void {
+    this.observers.push(observer);
+  }
+
+  detach(observer: Observer): void {
+    const index = this.observers.indexOf(observer);
+    if (index > -1) {
+      this.observers.splice(index, 1);
+    }
+  }
+
+  notify(data: any): void {
+    this.observers.forEach(observer => observer.update(data));
+  }
+}
+
+class Logger implements Observer {
+  update(data: any): void {
+    console.log(`Logging: ${JSON.stringify(data)}`);
+  }
+}
+
+class EmailNotifier implements Observer {
+  update(data: any): void {
+    console.log(`Sending email: ${data.message}`);
+  }
+}
+
+const subject = new Subject();
+subject.attach(new Logger());
+subject.attach(new EmailNotifier());
+
+subject.notify({ message: 'User logged in' });
+```
+
+## Advanced Generic Patterns
+
+### Generic Constraints
+Limit what types can be used with generics:
+
+```typescript
+interface HasLength {
+  length: number;
+}
+
+function logLength<T extends HasLength>(item: T): void {
+  console.log(`Length: ${item.length}`);
+}
+
+logLength('hello'); // Length: 5
+logLength([1, 2, 3]); // Length: 3
+// logLength(123); // Error: number doesn't have 'length' property
+```
+
+### Generic Utility Types
+Create reusable type utilities:
+
+```typescript
+// Make all properties optional
+type Partial<T> = {
+  [P in keyof T]?: T[P];
+};
+
+// Make all properties required
+type Required<T> = {
+  [P in keyof T]-?: T[P];
+};
+
+// Pick specific properties
+type Pick<T, K extends keyof T> = {
+  [P in K]: T[P];
+};
+
+// Omit specific properties
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
+// Example usage
+interface User {
+  id: number;
+  name: string;
+  email?: string;
+}
+
+type UserUpdate = Partial<User>; // All properties optional
+type UserRequired = Required<User>; // All properties required
+type UserBasic = Pick<User, 'id' | 'name'>; // Only id and name
+type UserWithoutId = Omit<User, 'id'>; // Everything except id
+```
+
+## Error Handling Patterns
+
+### Result Type Pattern
+Handle errors without exceptions:
+
+```typescript
+type Result<T, E = Error> = 
+  | { success: true; data: T }
+  | { success: false; error: E };
+
+function divide(a: number, b: number): Result<number, string> {
+  if (b === 0) {
+    return { success: false, error: 'Division by zero' };
+  }
+  return { success: true, data: a / b };
+}
+
+function handleDivision(a: number, b: number): void {
+  const result = divide(a, b);
+  
+  if (result.success) {
+    console.log(`Result: ${result.data}`);
+  } else {
+    console.error(`Error: ${result.error}`);
+  }
+}
+```
+
+### Try-Catch with Type Guards
+Type-safe error handling:
+
+```typescript
+class ValidationError extends Error {
+  constructor(message: string, public field: string) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
+
+class NetworkError extends Error {
+  constructor(message: string, public statusCode: number) {
+    super(message);
+    this.name = 'NetworkError';
+  }
+}
+
+function isValidationError(error: unknown): error is ValidationError {
+  return error instanceof ValidationError;
+}
+
+function isNetworkError(error: unknown): error is NetworkError {
+  return error instanceof NetworkError;
+}
+
+async function fetchUser(id: string): Promise<User> {
+  try {
+    if (!id) {
+      throw new ValidationError('ID is required', 'id');
+    }
+    
+    const response = await fetch(`/api/users/${id}`);
+    if (!response.ok) {
+      throw new NetworkError('Failed to fetch user', response.status);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    if (isValidationError(error)) {
+      console.error(`Validation error in field ${error.field}: ${error.message}`);
+    } else if (isNetworkError(error)) {
+      console.error(`Network error ${error.statusCode}: ${error.message}`);
+    } else {
+      console.error('Unknown error:', error);
+    }
+    throw error;
+  }
+}
+```
+
+## Performance Optimization
+
+### Type-Only Imports
+Reduce bundle size by importing only types:
+
+```typescript
+// Instead of
+import { User, createUser } from './user';
+
+// Use type-only imports
+import type { User } from './user';
+import { createUser } from './user';
+```
+
+### Const Assertions
+Make objects deeply readonly:
+
+```typescript
+const config = {
+  api: {
+    baseUrl: 'https://api.example.com',
+    timeout: 5000,
+  },
+  features: {
+    darkMode: true,
+    notifications: false,
+  },
+} as const;
+
+// Type is now deeply readonly
+type Config = typeof config;
+```
+
+## Testing with TypeScript
+
+### Type-Safe Testing
+Ensure your tests are type-safe:
+
+```typescript
+import { describe, it, expect } from 'vitest';
+
+interface TestUser {
+  id: number;
+  name: string;
+  email: string;
+}
+
+function validateUser(user: unknown): user is TestUser {
+  return (
+    typeof user === 'object' &&
+    user !== null &&
+    'id' in user &&
+    'name' in user &&
+    'email' in user &&
+    typeof (user as any).id === 'number' &&
+    typeof (user as any).name === 'string' &&
+    typeof (user as any).email === 'string'
+  );
+}
+
+describe('User validation', () => {
+  it('should validate correct user object', () => {
+    const user = { id: 1, name: 'John', email: 'john@example.com' };
+    expect(validateUser(user)).toBe(true);
+  });
+
+  it('should reject invalid user object', () => {
+    const invalidUser = { id: '1', name: 'John' }; // Missing email, wrong id type
+    expect(validateUser(invalidUser)).toBe(false);
+  });
+});
+```
+
+## Best Practices Summary
+
+1. **Use strict mode** - Enable all strict type checking options
+2. **Prefer interfaces over types** - For object shapes, use interfaces
+3. **Use union types** - Instead of `any`, use specific union types
+4. **Leverage type inference** - Let TypeScript infer types when possible
+5. **Document complex types** - Add JSDoc comments for complex type definitions
+6. **Use branded types** - Create type-safe identifiers
+7. **Implement proper error handling** - Use Result types or discriminated unions
+8. **Test your types** - Write tests that verify type behavior
+
+## Conclusion
+
+TypeScript's advanced features enable you to write more robust, maintainable, and self-documenting code. By mastering these patterns and best practices, you'll be able to build complex applications with confidence and catch errors at compile time rather than runtime.
+
+Remember, TypeScript is not just about adding types to JavaScript—it's about creating a better development experience and building more reliable software.

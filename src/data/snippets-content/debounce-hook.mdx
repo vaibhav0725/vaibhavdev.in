@@ -1,0 +1,176 @@
+---
+title: "Debounce Hook"
+description: "Custom hook for debouncing function calls"
+logo: "react.png"
+slug: "debounce-hook"
+---
+
+```jsx
+import { useState, useEffect, useCallback } from 'react';
+
+const useDebounce = (value, delay) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
+const useDebounceCallback = (callback, delay) => {
+  const [timeoutId, setTimeoutId] = useState(null);
+
+  const debouncedCallback = useCallback((...args) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    const newTimeoutId = setTimeout(() => {
+      callback(...args);
+    }, delay);
+
+    setTimeoutId(newTimeoutId);
+  }, [callback, delay, timeoutId]);
+
+  return debouncedCallback;
+};
+```
+
+```jsx
+const SearchComponent = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  const searchAPI = async (term) => {
+    if (!term.trim()) {
+      setResults([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/search?q=${encodeURIComponent(term)}`);
+      const data = await response.json();
+      setResults(data);
+    } catch (error) {
+      console.error('Search error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    searchAPI(debouncedSearchTerm);
+  }, [debouncedSearchTerm]);
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder="Search..."
+        className="w-full p-2 border rounded"
+      />
+      
+      {loading && <div>Searching...</div>}
+      
+      <div className="mt-4">
+        {results.map((result) => (
+          <div key={result.id} className="p-2 border-b">
+            {result.title}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+```
+
+```jsx
+const AutoSaveForm = () => {
+  const [formData, setFormData] = useState({
+    title: '',
+    content: '',
+    tags: ''
+  });
+
+  const saveForm = async (data) => {
+    try {
+      await fetch('/api/save-draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      console.log('Draft saved automatically');
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+    }
+  };
+
+  const debouncedSave = useDebounceCallback(saveForm, 1000);
+
+  const handleChange = (field, value) => {
+    const newData = { ...formData, [field]: value };
+    setFormData(newData);
+    debouncedSave(newData);
+  };
+
+  return (
+    <form className="space-y-4">
+      <input
+        type="text"
+        value={formData.title}
+        onChange={(e) => handleChange('title', e.target.value)}
+        placeholder="Title"
+        className="w-full p-2 border rounded"
+      />
+      
+      <textarea
+        value={formData.content}
+        onChange={(e) => handleChange('content', e.target.value)}
+        placeholder="Content"
+        className="w-full p-2 border rounded h-32"
+      />
+      
+      <input
+        type="text"
+        value={formData.tags}
+        onChange={(e) => handleChange('tags', e.target.value)}
+        placeholder="Tags (comma separated)"
+        className="w-full p-2 border rounded"
+      />
+    </form>
+  );
+};
+```
+
+## Usage
+
+The debounce hooks help optimize performance by delaying function execution. Features include:
+
+- Value debouncing for search inputs
+- Callback debouncing for API calls
+- Automatic cleanup of timeouts
+- TypeScript support
+- Memory leak prevention
+
+Import and use the hooks as needed:
+
+```jsx
+import { useDebounce, useDebounceCallback } from './hooks/useDebounce';
+```
+
+[Live Demo](https://codesandbox.io/s/debounce-hook-example)
+[Source Code](https://github.com/example/debounce-hook)
+

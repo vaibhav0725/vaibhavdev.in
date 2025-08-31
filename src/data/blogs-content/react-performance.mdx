@@ -1,0 +1,622 @@
+---
+title: "React Performance Optimization: Techniques for Faster Applications"
+description: "Learn advanced React performance optimization techniques including memoization, code splitting, and rendering optimization strategies"
+date: "2024-01-30"
+tags: ["React", "Performance", "JavaScript", "Frontend"]
+author: "Vaibhav Malik"
+slug: "react-performance"
+---
+
+# React Performance Optimization: Techniques for Faster Applications
+
+React applications can become slow as they grow in complexity. Understanding and implementing performance optimization techniques is crucial for maintaining a smooth user experience. Let's explore advanced strategies to make your React apps faster and more efficient.
+
+## Understanding React Rendering
+
+### The Virtual DOM
+React uses a Virtual DOM to optimize rendering:
+
+```jsx
+// React's rendering process
+function App() {
+  const [count, setCount] = useState(0);
+  
+  return (
+    <div>
+      <h1>Count: {count}</h1>
+      <button onClick={() => setCount(count + 1)}>
+        Increment
+      </button>
+    </div>
+  );
+}
+```
+
+When state changes, React:
+1. Creates a new Virtual DOM tree
+2. Compares it with the previous tree (diffing)
+3. Updates only the changed parts in the real DOM
+
+### Rendering Triggers
+Components re-render when:
+- Props change
+- State changes
+- Parent component re-renders
+- Context value changes
+
+## Memoization Techniques
+
+### React.memo
+Prevent unnecessary re-renders of functional components:
+
+```jsx
+import React from 'react';
+
+// Without memoization
+const ExpensiveComponent = ({ data, onUpdate }) => {
+  console.log('ExpensiveComponent rendered');
+  
+  return (
+    <div>
+      {data.map(item => (
+        <div key={item.id}>{item.name}</div>
+      ))}
+      <button onClick={onUpdate}>Update</button>
+    </div>
+  );
+};
+
+// With memoization
+const MemoizedComponent = React.memo(ExpensiveComponent);
+
+// Usage
+function ParentComponent() {
+  const [count, setCount] = useState(0);
+  const [data, setData] = useState([]);
+  
+  const handleUpdate = useCallback(() => {
+    setData(prev => [...prev, { id: Date.now(), name: 'New Item' }]);
+  }, []);
+  
+  return (
+    <div>
+      <h1>Count: {count}</h1>
+      <button onClick={() => setCount(count + 1)}>
+        Increment Count
+      </button>
+      
+      {/* This component won't re-render when count changes */}
+      <MemoizedComponent data={data} onUpdate={handleUpdate} />
+    </div>
+  );
+}
+```
+
+### useMemo Hook
+Memoize expensive calculations:
+
+```jsx
+import React, { useMemo } from 'react';
+
+function DataVisualization({ data, filters }) {
+  // Expensive calculation - only runs when data or filters change
+  const processedData = useMemo(() => {
+    console.log('Processing data...');
+    
+    return data
+      .filter(item => filters.category === 'all' || item.category === filters.category)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 100)
+      .map(item => ({
+        ...item,
+        normalizedValue: item.value / Math.max(...data.map(d => d.value))
+      }));
+  }, [data, filters.category]);
+  
+  return (
+    <div>
+      {processedData.map(item => (
+        <div key={item.id} style={{ height: `${item.normalizedValue * 100}px` }}>
+          {item.name}
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+### useCallback Hook
+Memoize functions to prevent child re-renders:
+
+```jsx
+import React, { useCallback, useState } from 'react';
+
+function TodoList() {
+  const [todos, setTodos] = useState([]);
+  const [filter, setFilter] = useState('all');
+  
+  // Memoized function - only changes when todos change
+  const addTodo = useCallback((text) => {
+    setTodos(prev => [...prev, { id: Date.now(), text, completed: false }]);
+  }, []);
+  
+  // Memoized function - only changes when todos change
+  const toggleTodo = useCallback((id) => {
+    setTodos(prev => 
+      prev.map(todo => 
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+  }, []);
+  
+  // Memoized function - only changes when filter changes
+  const filteredTodos = useMemo(() => {
+    switch (filter) {
+      case 'active':
+        return todos.filter(todo => !todo.completed);
+      case 'completed':
+        return todos.filter(todo => todo.completed);
+      default:
+        return todos;
+    }
+  }, [todos, filter]);
+  
+  return (
+    <div>
+      <div>
+        <button onClick={() => setFilter('all')}>All</button>
+        <button onClick={() => setFilter('active')}>Active</button>
+        <button onClick={() => setFilter('completed')}>Completed</button>
+      </div>
+      
+      <TodoInput onAdd={addTodo} />
+      <TodoItems todos={filteredTodos} onToggle={toggleTodo} />
+    </div>
+  );
+}
+
+// Memoized child components
+const TodoInput = React.memo(({ onAdd }) => {
+  const [text, setText] = useState('');
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (text.trim()) {
+      onAdd(text);
+      setText('');
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Add new todo"
+      />
+      <button type="submit">Add</button>
+    </form>
+  );
+});
+
+const TodoItems = React.memo(({ todos, onToggle }) => {
+  return (
+    <ul>
+      {todos.map(todo => (
+        <li key={todo.id}>
+          <input
+            type="checkbox"
+            checked={todo.completed}
+            onChange={() => onToggle(todo.id)}
+          />
+          <span style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
+            {todo.text}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+});
+```
+
+## Code Splitting
+
+### Dynamic Imports
+Split your code into smaller chunks:
+
+```jsx
+import React, { Suspense, lazy } from 'react';
+
+// Lazy load components
+const Dashboard = lazy(() => import('./Dashboard'));
+const Settings = lazy(() => import('./Settings'));
+const Analytics = lazy(() => import('./Analytics'));
+
+function App() {
+  const [currentPage, setCurrentPage] = useState('dashboard');
+  
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'settings':
+        return <Settings />;
+      case 'analytics':
+        return <Analytics />;
+      default:
+        return <Dashboard />;
+    }
+  };
+  
+  return (
+    <div>
+      <nav>
+        <button onClick={() => setCurrentPage('dashboard')}>Dashboard</button>
+        <button onClick={() => setCurrentPage('settings')}>Settings</button>
+        <button onClick={() => setCurrentPage('analytics')}>Analytics</button>
+      </nav>
+      
+      <Suspense fallback={<div>Loading...</div>}>
+        {renderPage()}
+      </Suspense>
+    </div>
+  );
+}
+```
+
+### Route-based Code Splitting
+Split code by routes:
+
+```jsx
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+// Lazy load route components
+const Home = lazy(() => import('./pages/Home'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Blog = lazy(() => import('./pages/Blog'));
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/blog" element={<Blog />} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
+  );
+}
+```
+
+## List Optimization
+
+### Virtual Scrolling
+Handle large lists efficiently:
+
+```jsx
+import React, { useState, useEffect, useRef } from 'react';
+
+function VirtualList({ items, itemHeight = 50, containerHeight = 400 }) {
+  const [scrollTop, setScrollTop] = useState(0);
+  const containerRef = useRef(null);
+  
+  // Calculate visible range
+  const startIndex = Math.floor(scrollTop / itemHeight);
+  const endIndex = Math.min(
+    startIndex + Math.ceil(containerHeight / itemHeight) + 1,
+    items.length
+  );
+  
+  // Get visible items
+  const visibleItems = items.slice(startIndex, endIndex);
+  
+  // Calculate total height and offset
+  const totalHeight = items.length * itemHeight;
+  const offsetY = startIndex * itemHeight;
+  
+  const handleScroll = (e) => {
+    setScrollTop(e.target.scrollTop);
+  };
+  
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        height: containerHeight,
+        overflow: 'auto',
+        border: '1px solid #ccc'
+      }}
+      onScroll={handleScroll}
+    >
+      <div style={{ height: totalHeight, position: 'relative' }}>
+        <div style={{ transform: `translateY(${offsetY}px)` }}>
+          {visibleItems.map((item, index) => (
+            <div
+              key={startIndex + index}
+              style={{
+                height: itemHeight,
+                padding: '10px',
+                borderBottom: '1px solid #eee',
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              {item.name}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Usage
+function App() {
+  const [items, setItems] = useState([]);
+  
+  useEffect(() => {
+    // Generate 10,000 items
+    const generatedItems = Array.from({ length: 10000 }, (_, i) => ({
+      id: i,
+      name: `Item ${i}`
+    }));
+    setItems(generatedItems);
+  }, []);
+  
+  return (
+    <div>
+      <h1>Virtual List Example</h1>
+      <VirtualList items={items} />
+    </div>
+  );
+}
+```
+
+### React Window (Library)
+Use a popular library for virtual scrolling:
+
+```jsx
+import React from 'react';
+import { FixedSizeList as List } from 'react-window';
+
+function VirtualizedList({ items }) {
+  const Row = ({ index, style }) => (
+    <div style={style}>
+      <div style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
+        {items[index].name}
+      </div>
+    </div>
+  );
+  
+  return (
+    <List
+      height={400}
+      itemCount={items.length}
+      itemSize={50}
+      width="100%"
+    >
+      {Row}
+    </List>
+  );
+}
+```
+
+## Context Optimization
+
+### Context Splitting
+Split large contexts into smaller ones:
+
+```jsx
+import React, { createContext, useContext, useState } from 'react';
+
+// Split contexts by domain
+const UserContext = createContext();
+const ThemeContext = createContext();
+const SettingsContext = createContext();
+
+// Custom hooks for each context
+const useUser = () => {
+  const context = useContext(UserContext);
+  if (!context) {
+    throw new Error('useUser must be used within UserProvider');
+  }
+  return context;
+};
+
+const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within ThemeProvider');
+  }
+  return context;
+};
+
+const useSettings = () => {
+  const context = useContext(SettingsContext);
+  if (!context) {
+    throw new Error('useSettings must be used within SettingsProvider');
+  }
+  return context;
+};
+
+// Providers
+function UserProvider({ children }) {
+  const [user, setUser] = useState(null);
+  
+  return (
+    <UserContext.Provider value={{ user, setUser }}>
+      {children}
+    </UserContext.Provider>
+  );
+}
+
+function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('light');
+  
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+function SettingsProvider({ children }) {
+  const [settings, setSettings] = useState({});
+  
+  return (
+    <SettingsContext.Provider value={{ settings, setSettings }}>
+      {children}
+    </SettingsContext.Provider>
+  );
+}
+
+// Usage
+function App() {
+  return (
+    <UserProvider>
+      <ThemeProvider>
+        <SettingsProvider>
+          <MainApp />
+        </SettingsProvider>
+      </ThemeProvider>
+    </UserProvider>
+  );
+}
+
+function MainApp() {
+  const { user } = useUser();
+  const { theme } = useTheme();
+  const { settings } = useSettings();
+  
+  return (
+    <div className={theme}>
+      {/* App content */}
+    </div>
+  );
+}
+```
+
+## Bundle Optimization
+
+### Tree Shaking
+Ensure unused code is removed:
+
+```jsx
+// Good - tree shakeable
+import { useState, useEffect } from 'react';
+
+// Bad - imports entire library
+import * as React from 'react';
+
+// Good - specific imports
+import { debounce } from 'lodash-es';
+
+// Bad - imports entire library
+import _ from 'lodash';
+```
+
+### Bundle Analysis
+Analyze your bundle size:
+
+```bash
+# Install bundle analyzer
+npm install --save-dev webpack-bundle-analyzer
+
+# Add to webpack config
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
+module.exports = {
+  plugins: [
+    new BundleAnalyzerPlugin()
+  ]
+};
+```
+
+## Performance Monitoring
+
+### React DevTools Profiler
+Use React's built-in profiler:
+
+```jsx
+import React, { Profiler } from 'react';
+
+function onRenderCallback(
+  id, // the "id" prop of the Profiler tree that has just committed
+  phase, // either "mount" (if the tree just mounted) or "update" (if it re-rendered)
+  actualDuration, // time spent rendering the committed update
+  baseDuration, // estimated time to render the entire subtree without memoization
+  startTime, // when React began rendering this update
+  commitTime, // when React committed the update
+  interactions // the Set of interactions belonging to this update
+) {
+  console.log(`Component ${id} took ${actualDuration}ms to render`);
+}
+
+function App() {
+  return (
+    <Profiler id="App" onRender={onRenderCallback}>
+      <MainContent />
+    </Profiler>
+  );
+}
+```
+
+### Performance Metrics
+Track key performance indicators:
+
+```jsx
+import { useEffect } from 'react';
+
+function PerformanceMonitor() {
+  useEffect(() => {
+    // First Contentful Paint
+    const observer = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        console.log('FCP:', entry.startTime);
+      }
+    });
+    
+    observer.observe({ entryTypes: ['paint'] });
+    
+    // Largest Contentful Paint
+    const lcpObserver = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        console.log('LCP:', entry.startTime);
+      }
+    });
+    
+    lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
+    
+    return () => {
+      observer.disconnect();
+      lcpObserver.disconnect();
+    };
+  }, []);
+  
+  return null;
+}
+```
+
+## Best Practices Summary
+
+1. **Use React.memo for expensive components** - Prevent unnecessary re-renders
+2. **Memoize expensive calculations with useMemo** - Avoid recalculating on every render
+3. **Memoize functions with useCallback** - Prevent child re-renders
+4. **Implement code splitting** - Reduce initial bundle size
+5. **Use virtual scrolling for large lists** - Handle thousands of items efficiently
+6. **Split contexts by domain** - Prevent unnecessary re-renders
+7. **Optimize bundle size** - Remove unused code and dependencies
+8. **Monitor performance** - Use React DevTools and performance metrics
+9. **Avoid inline objects and functions** - They cause re-renders
+10. **Use production builds** - Enable all optimizations
+
+## Conclusion
+
+React performance optimization is an ongoing process that requires understanding of React's rendering mechanism and careful application of optimization techniques. By implementing these strategies, you can create fast, responsive applications that provide excellent user experiences.
+
+Remember to measure performance before and after optimizations to ensure your changes are effective. Use React DevTools Profiler and browser performance tools to identify bottlenecks and validate improvements.

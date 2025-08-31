@@ -1,0 +1,57 @@
+---
+title: "Toast"
+description: "A simple reusable notification toasts"
+logo: "react.png"
+slug: "toast"
+---
+
+```js
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+function MyApp({ Component, pageProps }) {
+  return (
+    <>
+      <ToastContainer />
+      <Component {...pageProps} />
+    </>
+  );
+}
+```
+
+```js
+const logout = async () => {
+  await firebase.auth().signOut();
+  dispatch({
+    type: "LOGOUT",
+  });
+  toast.success("🚀 Logged out successfully!");
+  router.push("/login");
+};
+```
+
+## Usage
+
+
+```bash
+npm i react-toastify
+```
+
+Import two helper functions in the root directory
+
+```js
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+```
+
+This import gives access to the toast object where all the methods live. Since it is in the root directory, it is accessible over all the pages in your app.
+
+
+Use the below syntax to get access to the toast component and use it accordingly.
+
+```js
+toast.success("🚀 Logged out successfully!");
+```
+
+[Live Demo](http://manuarora.in/demos/demo/toast)
+[Source Code](https://github.com/manuarora700/portfolio-website/tree/master/pages/demos/demo/toast)

@@ -1,0 +1,75 @@
+---
+title: "Modal Component"
+description: "A reusable modal dialog component with backdrop"
+logo: "react.png"
+slug: "modal"
+---
+
+```jsx
+import { useState } from 'react';
+
+const Modal = ({ isOpen, onClose, children, title }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div 
+        className="fixed inset-0 bg-black bg-opacity-50"
+        onClick={onClose}
+      />
+      <div className="relative bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">{title}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 text-2xl"
+          >
+            ×
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+};
+```
+
+```jsx
+const [isModalOpen, setIsModalOpen] = useState(false);
+
+const openModal = () => setIsModalOpen(true);
+const closeModal = () => setIsModalOpen(false);
+
+return (
+  <div>
+    <button onClick={openModal}>Open Modal</button>
+    <Modal 
+      isOpen={isModalOpen} 
+      onClose={closeModal}
+      title="Example Modal"
+    >
+      <p>This is the modal content!</p>
+      <button onClick={closeModal}>Close</button>
+    </Modal>
+  </div>
+);
+```
+
+## Usage
+
+The Modal component provides a reusable dialog that can be used throughout your application. It includes:
+
+- Backdrop click to close
+- Close button in header
+- Customizable title and content
+- Responsive design
+- Z-index management
+
+Simply import the Modal component and use it with the required props:
+
+```jsx
+import Modal from './components/Modal';
+```
+
+[Live Demo](https://codesandbox.io/s/modal-example)
+[Source Code](https://github.com/example/modal-component)

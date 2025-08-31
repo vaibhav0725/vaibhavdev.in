@@ -1,0 +1,175 @@
+---
+title: "Infinite Scroll"
+description: "Infinite scroll implementation with Intersection Observer"
+logo: "react.png"
+slug: "infinite-scroll"
+---
+
+```jsx
+import { useState, useEffect, useRef, useCallback } from 'react';
+
+const useInfiniteScroll = (fetchData, hasMore) => {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const observer = useRef();
+
+  const lastElementRef = useCallback(node => {
+    if (loading) return;
+    
+    if (observer.current) observer.current.disconnect();
+    
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPage(prevPage => prevPage + 1);
+      }
+    });
+    
+    if (node) observer.current.observe(node);
+  }, [loading, hasMore]);
+
+  useEffect(() => {
+    const loadMore = async () => {
+      setLoading(true);
+      try {
+        const newItems = await fetchData(page);
+        setItems(prev => [...prev, ...newItems]);
+      } catch (error) {
+        console.error('Error loading more items:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (page > 1) {
+      loadMore();
+    }
+  }, [page, fetchData]);
+
+  return { items, loading, lastElementRef };
+};
+```
+
+```jsx
+const PostList = () => {
+  const [hasMore, setHasMore] = useState(true);
+  const [totalPosts, setTotalPosts] = useState(0);
+
+  const fetchPosts = async (page) => {
+    const response = await fetch(`/api/posts?page=${page}&limit=10`);
+    const data = await response.json();
+    
+    if (data.posts.length < 10) {
+      setHasMore(false);
+    }
+    
+    setTotalPosts(data.total);
+    return data.posts;
+  };
+
+  const { items: posts, loading, lastElementRef } = useInfiniteScroll(fetchPosts, hasMore);
+
+  return (
+    <div className="max-w-2xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Posts ({totalPosts})</h1>
+      
+      <div className="space-y-4">
+        {posts.map((post, index) => (
+          <div
+            key={post.id}
+            ref={index === posts.length - 1 ? lastElementRef : null}
+            className="p-4 border rounded-lg shadow-sm"
+          >
+            <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
+            <p className="text-gray-600 mb-2">{post.excerpt}</p>
+            <div className="flex justify-between text-sm text-gray-500">
+              <span>By {post.author}</span>
+              <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {loading && (
+        <div className="text-center py-4">
+          <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+          <p className="mt-2 text-gray-600">Loading more posts...</p>
+        </div>
+      )}
+      
+      {!hasMore && posts.length > 0 && (
+        <div className="text-center py-4 text-gray-500">
+          No more posts to load
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+```jsx
+const ImageGallery = () => {
+  const [hasMore, setHasMore] = useState(true);
+
+  const fetchImages = async (page) => {
+    const response = await fetch(`/api/images?page=${page}&limit=20`);
+    const data = await response.json();
+    
+    if (data.images.length < 20) {
+      setHasMore(false);
+    }
+    
+    return data.images;
+  };
+
+  const { items: images, loading, lastElementRef } = useInfiniteScroll(fetchImages, hasMore);
+
+  return (
+    <div className="max-w-5xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Image Gallery</h1>
+      
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {images.map((image, index) => (
+          <div
+            key={image.id}
+            ref={index === images.length - 1 ? lastElementRef : null}
+            className="aspect-square overflow-hidden rounded-lg"
+          >
+            <img
+              src={image.url}
+              alt={image.title}
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+              loading="lazy"
+            />
+          </div>
+        ))}
+      </div>
+      
+      {loading && (
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+## Usage
+
+The infinite scroll implementation provides smooth pagination with:
+
+- Intersection Observer for performance
+- Automatic loading states
+- Error handling
+- Configurable page size
+- Lazy loading support
+
+Import and use the hook in your components:
+
+```jsx
+import { useInfiniteScroll } from './hooks/useInfiniteScroll';
+```
+
+[Live Demo](https://codesandbox.io/s/infinite-scroll-example)
+[Source Code](https://github.com/example/infinite-scroll)

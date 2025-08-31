@@ -1,0 +1,128 @@
+---
+title: "API Fetch Hook"
+description: "Custom hook for API calls with loading and error states"
+logo: "react.png"
+slug: "api-fetch-hook"
+---
+
+```jsx
+import { useState, useEffect } from 'react';
+
+const useApi = (url, options = {}) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        ...options,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      setData(result);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [url]);
+
+  const refetch = () => {
+    fetchData();
+  };
+
+  return { data, loading, error, refetch };
+};
+```
+
+```jsx
+const UserProfile = ({ userId }) => {
+  const { data: user, loading, error, refetch } = useApi(`/api/users/${userId}`);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!user) return <div>No user found</div>;
+
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <p>{user.email}</p>
+      <button onClick={refetch}>Refresh</button>
+    </div>
+  );
+};
+```
+
+```jsx
+// POST request example
+const CreateUser = () => {
+  const [formData, setFormData] = useState({ name: '', email: '' });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    const response = await fetch('/api/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (response.ok) {
+      console.log('User created successfully');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        value={formData.name}
+        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+        placeholder="Name"
+      />
+      <input
+        value={formData.email}
+        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+        placeholder="Email"
+      />
+      <button type="submit">Create User</button>
+    </form>
+  );
+};
+```
+
+## Usage
+
+The `useApi` hook provides a clean way to handle API calls with built-in loading and error states. Features include:
+
+- Automatic loading states
+- Error handling
+- Refetch functionality
+- Customizable options
+- TypeScript ready
+
+Simply import and use the hook with your API endpoint:
+
+```jsx
+import useApi from './hooks/useApi';
+```
+
+[Live Demo](https://codesandbox.io/s/api-hook-example)
+[Source Code](https://github.com/example/api-hook)

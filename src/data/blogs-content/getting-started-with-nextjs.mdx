@@ -1,0 +1,221 @@
+---
+title: "Getting Started with Next.js: A Complete Guide"
+description: "Learn the fundamentals of Next.js and build your first full-stack React application with server-side rendering and routing"
+date: "2024-01-15"
+tags: ["Next.js", "React", "JavaScript", "Web Development"]
+author: "Vaibhav Malik"
+slug: "getting-started-with-nextjs"
+---
+
+# Getting Started with Next.js: A Complete Guide
+
+Next.js has become the go-to framework for building modern React applications. With its powerful features like server-side rendering, static site generation, and API routes, it's no wonder why developers love it.
+
+## What is Next.js?
+
+Next.js is a React framework that provides an excellent developer experience with features like:
+
+- **Server-Side Rendering (SSR)**: Better SEO and performance
+- **Static Site Generation (SSG)**: Pre-rendered pages at build time
+- **API Routes**: Backend functionality within your frontend app
+- **File-based Routing**: Automatic routing based on file structure
+- **Hot Reloading**: Instant feedback during development
+
+## Setting Up Your First Next.js Project
+
+### Prerequisites
+Make sure you have Node.js installed (version 16.14 or later).
+
+### Create a New Project
+```bash
+npx create-next-app@latest my-nextjs-app
+cd my-nextjs-app
+npm run dev
+```
+
+### Project Structure
+```
+my-nextjs-app/
+├── app/                 # App Router (Next.js 13+)
+│   ├── page.tsx        # Home page
+│   ├── layout.tsx      # Root layout
+│   └── globals.css     # Global styles
+├── public/             # Static assets
+├── components/         # Reusable components
+└── package.json
+```
+
+## Understanding the App Router
+
+Next.js 13+ introduced the App Router, which uses React Server Components by default.
+
+### Page Components
+```tsx
+// app/page.tsx
+export default function HomePage() {
+  return (
+    <main>
+      <h1>Welcome to My Next.js App</h1>
+    </main>
+  )
+}
+```
+
+### Layout Components
+```tsx
+// app/layout.tsx
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  )
+}
+```
+
+## Routing in Next.js
+
+### File-based Routing
+- `app/page.tsx` → `/`
+- `app/about/page.tsx` → `/about`
+- `app/blog/[slug]/page.tsx` → `/blog/any-slug`
+
+### Dynamic Routes
+```tsx
+// app/blog/[slug]/page.tsx
+export default function BlogPost({ params }: { params: { slug: string } }) {
+  return (
+    <article>
+      <h1>Blog Post: {params.slug}</h1>
+    </article>
+  )
+}
+```
+
+## Data Fetching
+
+### Server Components (Default)
+```tsx
+// app/posts/page.tsx
+async function getPosts() {
+  const res = await fetch('https://api.example.com/posts')
+  return res.json()
+}
+
+export default async function PostsPage() {
+  const posts = await getPosts()
+  
+  return (
+    <div>
+      {posts.map((post: any) => (
+        <div key={post.id}>{post.title}</div>
+      ))}
+    </div>
+  )
+}
+```
+
+### Client Components
+```tsx
+'use client'
+
+import { useState, useEffect } from 'react'
+
+export default function ClientComponent() {
+  const [data, setData] = useState(null)
+  
+  useEffect(() => {
+    fetch('/api/data')
+      .then(res => res.json())
+      .then(setData)
+  }, [])
+  
+  return <div>{/* render data */}</div>
+}
+```
+
+## API Routes
+
+Create backend functionality with API routes:
+
+```tsx
+// app/api/posts/route.ts
+import { NextResponse } from 'next/server'
+
+export async function GET() {
+  const posts = [
+    { id: 1, title: 'First Post' },
+    { id: 2, title: 'Second Post' }
+  ]
+  
+  return NextResponse.json(posts)
+}
+
+export async function POST(request: Request) {
+  const body = await request.json()
+  // Handle creating a new post
+  return NextResponse.json({ message: 'Post created' })
+}
+```
+
+## Styling Options
+
+### CSS Modules
+```css
+/* styles/Button.module.css */
+.button {
+  padding: 10px 20px;
+  background: blue;
+  color: white;
+}
+```
+
+```tsx
+import styles from './Button.module.css'
+
+export default function Button() {
+  return <button className={styles.button}>Click me</button>
+}
+```
+
+### Tailwind CSS
+```tsx
+export default function Button() {
+  return (
+    <button className="px-4 py-2 bg-blue-500 text-white rounded">
+      Click me
+    </button>
+  )
+}
+```
+
+## Deployment
+
+### Vercel (Recommended)
+```bash
+npm install -g vercel
+vercel
+```
+
+### Other Platforms
+- Netlify
+- AWS Amplify
+- Railway
+
+## Best Practices
+
+1. **Use Server Components by default** - Only use Client Components when necessary
+2. **Optimize images** - Use Next.js Image component
+3. **Implement proper SEO** - Use metadata API
+4. **Handle loading states** - Create loading.tsx files
+5. **Error boundaries** - Create error.tsx files
+
+## Conclusion
+
+Next.js provides an excellent foundation for building modern web applications. Its combination of performance, developer experience, and flexibility makes it an ideal choice for both small projects and large-scale applications.
+
+Start building with Next.js today and experience the future of React development!
