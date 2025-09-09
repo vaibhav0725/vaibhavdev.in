@@ -5,8 +5,8 @@ import fs from "fs/promises"
 import { components } from "@/components/mdx-components";
 import matter from 'gray-matter';
 
-export default async function SingleBlog({params}: {params: Promise<{slug: string}>}) {
-    const {slug} = await params;
+export default async function SingleBlog({params}: {params: {slug: string}}) {
+    const {slug} = params;
     const currblog = slug;
     const dir = process.cwd() + "/src/data/blogs-content/" + currblog + ".mdx";
     const singleBlog = await fs.readFile(dir,{encoding: 'utf-8'})
