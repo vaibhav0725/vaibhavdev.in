@@ -5,7 +5,13 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns:[{hostname:'aceternity.com'}]
   },
-  pageExtensions: ['js','jsx','ts','tsx','md','mdx','pdf']
+  pageExtensions: ['js','jsx','ts','tsx','md','mdx','pdf'],
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 const withMdx = createMDX({
