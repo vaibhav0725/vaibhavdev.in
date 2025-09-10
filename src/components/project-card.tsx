@@ -35,7 +35,7 @@ export const ProjectCard = ({
             </motion.div>
             <motion.div variants={move}>
                 <h3 className="text-lg text-neutral-600 dark:text-neutral-300 font-medium mt-5">{title}</h3>
-                <div className="text-md text-neutral-500 dark:text-neutral-400 mt-1.5">
+                <div className="text-md w-fit text-neutral-500 dark:text-neutral-400 mt-1.5">
                     {description}
                 </div>
                 <div className="flex mt-4">
