@@ -13,12 +13,12 @@ export const ExperienceCard = ({
 }) => {
     return (
         <div>
-            <div className="text-xl dark:text-neutral-100">{company}</div>
-            <div className="text-md dark:text-neutral-300 mt-2">
+            <div className="text-xl font-semibold tracking-tighter dark:text-neutral-100">{company}</div>
+            <div className="text-lg dark:text-neutral-300 mt-1">
                 {title}
                 <BoxText>{timespan}</BoxText>
             </div>
-            <div className="w-2xl text-neutral-500 text-sm dark:text-neutral-400 mt-1.5">
+            <div className="w-fit text-neutral-500 text-md dark:text-neutral-400 mt-1.5">
                 {children}
             </div>
         </div>

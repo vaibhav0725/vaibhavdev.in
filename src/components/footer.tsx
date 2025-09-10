@@ -1,6 +1,7 @@
 import { FiGithub } from "react-icons/fi";
 import { FaXTwitter } from "react-icons/fa6";
 import { CiLinkedin } from "react-icons/ci";
+import Link from "next/link";
 
 export const Footer = () => {
     return (
@@ -8,9 +9,15 @@ export const Footer = () => {
             <div className="mx-auto w-4xl text-lg flex items-center justify-between px-5 py-2">
             <span className="text-xs">Built by Vaibhav</span>
             <div className="flex gap-5">
-                <CiLinkedin/>
-                <FaXTwitter/>
-                <FiGithub />
+                <Link href={"https://www.linkedin.com/in/vm07/"}>
+                    <CiLinkedin/>
+                </Link>
+                <Link href={"https://x.com/vaibhavwork0725"}>
+                    <FaXTwitter/>
+                </Link>
+                <Link href={"https://github.com/vaibhav0725"}>
+                    <FiGithub />
+                </Link>
             </div>
             </div>
         </div>
