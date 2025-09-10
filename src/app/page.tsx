@@ -7,8 +7,27 @@ import { ProjectCard } from "@/components/project-card"
 import { Sectioner } from "@/components/sectioner"
 import { ContainerTextFlip } from "@/components/text-flipper"
 import { projects } from "@/data/projects-content/projects"
+import fs from "fs/promises"
+import matter from "gray-matter";
+import Link from "next/link"
+import { BlogCard } from "@/components/blog-card"
 
-export default function Home() {
+
+export default async function Home() {
+  const dir = process.cwd() + "/src/data/blogs-content"
+    const blogs = await fs.readdir(dir);
+    
+    // Get front matter for all blogs
+    const blogsWithFrontMatter = await Promise.all(
+        blogs.map(async (blogfile) => {
+            const singleBlog = await fs.readFile(dir + "/" + blogfile, 'utf-8');
+            const { data } = matter(singleBlog);
+            return {
+                filename: blogfile,
+                frontMatter: data
+            };
+        })
+    );
   return (
     <div className="min-h-screen">
       <Container>
@@ -24,13 +43,25 @@ export default function Home() {
         <section className="shadow-[var(--inner-shadow)] dark:shadow-[var(--inner-dark-shadow)] dark:border-y-[0.5px] dark:border-neutral-700">
           <Sectioner title="I love building">
             {projects.map((proj,idx)=>(
-                idx<3 && <ProjectCard title={proj.title} description={proj.description} tags={proj.tags} image={proj.image} key={idx}/>
+                idx<3 && <ProjectCard title={proj.title} description={proj.description} tags={proj.tags} image={proj.image} link={proj.link} key={idx}/>
             ))}
           </Sectioner>
         </section>
         <section className="">
-          <Sectioner title="What I write for tech">
-            <>Blogs Come Here</>
+          <Sectioner title="What I write for tech" className="">
+            <div className="flex flex-col gap-5 w-full">
+                          {
+                              blogsWithFrontMatter.slice(0, 3).map((blog, idx) => (
+                                  <Link key={idx} href={`/blogs/${blog.frontMatter.slug}`} className="block mb-4">
+                                      <BlogCard 
+                                          title={blog.frontMatter.title || blog.filename}
+                                          timeline={blog.frontMatter.date || ''}
+                                          description={blog.frontMatter.description || ''}
+                                      />
+                                  </Link>
+                              ))
+                          }
+                    </div>
           </Sectioner>
         </section>
         <section className="shadow-[var(--inner-shadow)] dark:shadow-[var(--inner-dark-shadow)] dark:border-y-[0.5px] dark:border-neutral-700">
