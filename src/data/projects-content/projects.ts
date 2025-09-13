@@ -5,6 +5,11 @@ interface ProjectInter {
     tags: { name: string; icon: string }[];
     link: string;
 }
+export const icons = {
+    nextjs: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg",
+    react: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg",
+    tailwind: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original-wordmark.svg"
+}
 
 export const projects: ProjectInter[] = [
     {
@@ -12,9 +17,9 @@ export const projects: ProjectInter[] = [
         title: "QuickBuy",
         description: "A basic template for an e-commerce website.",
         tags: [
-            { name: "React", icon: "react" },
-            { name: "Next.js", icon: "nextjs2" },
-            { name: "Tailwind", icon: "tailwindcss" }
+            { name: "React", icon: icons.react },
+            { name: "Next.js", icon: icons.nextjs },
+            { name: "Tailwind", icon: icons.tailwind }
         ],
         link: "https://ecom-quickzy.vercel.app"
     },

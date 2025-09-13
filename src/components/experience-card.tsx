@@ -18,7 +18,7 @@ export const ExperienceCard = ({
                 {title}
                 <BoxText>{timespan}</BoxText>
             </div>
-            <div className="w-fit text-neutral-500 text-md dark:text-neutral-400 mt-1.5">
+            <div className="w-fit text-neutral-500 text-md dark:text-neutral-400 mt-1">
                 {children}
             </div>
         </div>

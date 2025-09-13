@@ -36,10 +36,12 @@ export const ProjectCard = ({
                         className="rounded-2xl"
                     />
                 </motion.div>
-                <motion.div variants={move} className="flex flex-col items-stretch">
-                    <h3 className="text-lg text-neutral-600 dark:text-neutral-300 font-medium mt-5">{title}</h3>
-                    <div className="text-md w-fit text-neutral-500 dark:text-neutral-400 mt-1.5">
-                        {description}
+                <motion.div variants={move} className="h-44 flex flex-col justify-between">
+                    <div>
+                        <h3 className="text-lg text-neutral-600 dark:text-neutral-300 font-medium mt-5">{title}</h3>
+                        <div className="text-md w-fit text-neutral-500 dark:text-neutral-400 mt-1.5">
+                            {description}
+                        </div>
                     </div>
                     <div className="flex mt-4">
                         <div className="flex -space-x-2">
